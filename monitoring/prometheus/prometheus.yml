@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # Custom metrics from the self-healing engine:
+  # app_health_status, container_running_status, container_restart_total,
+  # container_last_restart_timestamp_seconds
+  - job_name: "health-checker"
+    static_configs:
+      - targets: ["health-checker:9200"]
+
+  # Per-container CPU / memory / status metrics for every container in the stack
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]

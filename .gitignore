@@ -1,0 +1,18 @@
+# Secrets: never commit real credentials
+.env
+
+# Dependencies and build output (Docker rebuilds these)
+node_modules/
+build/
+dist/
+
+# Logs
+*.log
+recovery_events.log
+
+# Docker Desktop's virtual disk, if it lives inside this folder
+dockerData/
+
+# Python
+__pycache__/
+*.pyc

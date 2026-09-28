@@ -1,0 +1,33 @@
+# Standalone Jenkins controller — deliberately kept OUT of the app's
+# docker-compose.yml so that `docker compose down` on the app stack
+# never touches Jenkins itself (it would be tearing down the thing
+# driving its own deployment).
+#
+# Run from the jenkins/ directory:
+#   cd jenkins && docker compose -f docker-compose.jenkins.yml up -d --build
+
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ecommerce-jenkins:lts
+    container_name: ecommerce-jenkins
+    restart: unless-stopped
+    user: root
+    # Mounting the host's Docker socket lets pipeline stages run
+    # `docker compose build/up/down` against the SAME Docker engine
+    # Jenkins itself is running on (sibling containers, not
+    # docker-in-docker).
+    group_add:
+      - "${DOCKER_GID:-999}" # set to `getent group docker | cut -d: -f3` on the host
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8080:8080" # Jenkins web UI
+      - "50000:50000" # agent connections, if you add build agents later
+
+volumes:
+  jenkins-data:
+    driver: local
